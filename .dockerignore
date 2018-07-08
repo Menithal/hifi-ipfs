@@ -1,0 +1,7 @@
+
+Dockerfile
+ipfs-web.yml
+__pycache__/*
+.vscode/*
+.env
+app/.env
