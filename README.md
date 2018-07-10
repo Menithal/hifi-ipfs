@@ -1,9 +1,9 @@
 # Hifi-IFPS "Heimdall"
 ## Web Node Proof of Concept
 
-This is a proof of concept repository for rapidly setting up a service that allows one to upload Assets for High Fidelity to the IPFS and keep track of what has been uploaded to it.
+This is a proof of concept repository for rapidly setting up a service that allows one to upload Assets for High Fidelity via the IPFS and keep track of what has been uploaded to it.
 
-Others may use this as a base line to make their own host nodes for ipfs with their own services.
+Others may use this as a template to improve upon to make their own host nodes for ipfs with their own services.
 
 # Caution
 
@@ -29,16 +29,23 @@ The repository of it self contains both the python files for the prototype web s
 ### To run
 
 To run the service
+You first need to create an ```.env``` file with a secret key like
+
+```
+SECRET_KEY="This is a secret that should be unique replaced. Do not use this, make your own"
+```
+
+After you can use docker compose
 
 ```
 docker-compose build;
 docker-compose pull;
-docker-compose up;
+docker-compose up -d;
 ```
 This builds the current state of the service, and starts the entire stack using docker compose.
 
 Once built, you no longer need build the service again.
-Simply running `docker-compose up` will get the entire service up and running.
+Simply running `docker-compose up -d` will get the entire service up and running.
 
 If developing and you wish to rebuild the gatekeeper, use the  
 ```
