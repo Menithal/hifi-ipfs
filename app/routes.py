@@ -68,8 +68,7 @@ def routes(app, db, env):
     @app.route('/uploads', methods=['GET', 'POST'])
     def check_uploads():
 
-        # TODO: If you want session service, use it herew
-        if request.method == 'POST':
+        if request.form['username'] and request.form['token']:
             user = _authentication(
                 request.form['username'], request.form['token'])
 
