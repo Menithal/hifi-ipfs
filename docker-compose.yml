@@ -12,7 +12,7 @@ services:
       - "ipfs_data:/data/ipfs"
       - "ipfs_staging:/export"
     environment:
-      - API_ORIGIN=upload-point
+      - API_ORIGIN=gatekeeper
       - API_ORIGIN=localhost
        # Find a way to do this in the non-deprivated way in the future
     ports: 
