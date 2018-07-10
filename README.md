@@ -1,9 +1,14 @@
 # Hifi-IFPS "Heimdall"
 ## Web Node Proof of Concept
 
-This is a proof of concept repository for rapidly setting up a service that allows one to upload content to IPFS network that then can be used within High Fidelity. 
+This is a proof of concept repository for rapidly setting up a service that allows one to upload Assets for High Fidelity to the IPFS and keep track of what has been uploaded to it.
 
 Others may use this as a base line to make their own host nodes for ipfs with their own services.
+
+# Caution
+
+- IPFS is still in early development. See ipfs.io for more details
+- IPFS Can be quite a bandwidth and cpu hog. Suggest using it in a Droplet instead of EC2.
 
 # Requirements
 

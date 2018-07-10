@@ -5,6 +5,7 @@ import secrets
 from models import Credentials, pbdkdf2_hash_base64, Uploads
 import file_upload
 
+
 def routes(app, db, env):
     def _authentication(username, token):
         if username is None:
@@ -64,8 +65,10 @@ def routes(app, db, env):
 
     @app.route('/uploads', methods=['GET', 'POST'])
     def check_uploads():
+        print(request)
+        print("Trying to check uploads", request.data, request.form)
 
-        if request.form['username'] and request.form['token']:
+        if request.method == "POST":
             user = _authentication(
                 request.form['username'], request.form['token'])
 
@@ -75,7 +78,17 @@ def routes(app, db, env):
             uploads = Uploads.query.filter_by(
                 uploader=user.id
             )
+            return env.get_template('uploads.html').render(uploads=uploads, username=user.username)
+        elif request.args is not None and request.args.get('username') is not None and request.args.get('token') is not None:
+            user = _authentication(
+                request.args.get('username'),request.args.get('token'))
 
+            if user is None:
+                return jsonify({'error': 'Could not authenticate with provided information.'})
+
+            uploads = Uploads.query.filter_by(
+                uploader=user.id
+            )
             return env.get_template('uploads.html').render(uploads=uploads, username=user.username)
 
         return env.get_template('query.html').render()
@@ -83,7 +96,6 @@ def routes(app, db, env):
     # TODO: Update when creating proper authentication channels.
     @app.route('/new', methods=['GET', 'POST'])
     def create_credentials():
-
         if request.method == 'POST':
             if len(request.form['username']) == 0:
                 return redirect(url_for('create_credentials'))
@@ -104,4 +116,4 @@ def routes(app, db, env):
 
             return jsonify({'username': request.form['username'], 'secret': secret, 'notes': 'DO NOT LOSE THIS'})
 
-        return  env.get_template('new_user.html').render()
+        return env.get_template('new_user.html').render()
