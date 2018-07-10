@@ -82,9 +82,9 @@ def process(app, db, request, user):
                 for item in original_response:
                     # Remove directory id name
                     item["Name"] = item["Name"].replace(unique_id, '')
-                    if len(item["Name"]):
+                    if len(item["Name"]) is 0:
                         item["Name"] = file.filename
-                        
+
                     response.append(item)
 
                 try:

@@ -31,7 +31,7 @@ def routes(app, db, env):
 
     @app.route('/')
     def landing():
-        return 'Heimdall v0.01. Connect via Plugin.'
+        return 'Heimdall v0.2. Connect via Plugin.'
 
     @app.route('/plugin_routes', methods=['GET'])
     def routes():
