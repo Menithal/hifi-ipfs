@@ -1,3 +1,6 @@
+
+# This compose file is used mostly for developing as it uses volumes instead of strict paths. 
+
 version: "2.4" # Using 2.4 since 3+ mem_limit is no longer viable.
 services:
   ipfs:
@@ -6,8 +9,8 @@ services:
     image: ipfs/go-ipfs:v0.4.15
     mem_limit: 512m # more stuff goes through the node
     volumes:
-      - /var/dbdata/ipfs_staging:/data/ipfs
-      - /var/dbdata/ipfs_export:/export
+      - "ipfs_data:/data/ipfs"
+      - "ipfs_staging:/export"
     environment:
       - API_ORIGIN=upload-point
       - API_ORIGIN=localhost
@@ -17,12 +20,14 @@ services:
       - "127.0.0.1:5001:5001" # ONLY local
       - "8080:8080" 
       - "4002:4002/udp"
+
   db:
     hostname: db
     container_name: psql
     restart: on-failure:5
     image: postgres:10
-    mem_limit: 256m #bump up if necessary
+    mem_limit: 250m #bump up if necessary
+
     ports:
       - "127.0.0.1:5432:5432"
     environment:
@@ -31,7 +36,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=hifi
     volumes: 
-      - /var/dbdata/postgres:/var/lib/postgresql
+      - dbdata:/var/lib/postgresql
 
   upload-point:
     hostname: upload-point
@@ -48,5 +53,8 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - UPLOAD_FOLDER=/tmp/uploads/ #Folder where files are temporary uploaded to be unpacked.
       - DATABASE_URI=postgresql://postgres:postgres@db:5432/hifi
-
-      
+ 
+volumes:
+  ipfs_staging:
+  ipfs_data:
+  dbdata:

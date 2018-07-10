@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import os
 
 from werkzeug.utils import secure_filename
@@ -50,6 +50,8 @@ def process(app, db, request, user):
     uuid_gen = uuid.uuid5(uuid.NAMESPACE_DNS, file.filename +
                           datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     unique_id = str(uuid_gen)
+
+    directory = app.config['UPLOAD_FOLDER'] + unique_id + "/"
     if file.filename.rsplit('.', 1)[-1].lower() == 'zip':
         try:
             zf = zipfile.ZipFile(file, 'r')
@@ -66,35 +68,38 @@ def process(app, db, request, user):
                 response = {
                     "error": "Following Files are not allowed", "details": err}
             else:
-                directory = app.config['UPLOAD_FOLDER'] + unique_id + "/"
 
                 for file_name in file_names:
-                    # doing individuals to make sure nothing is relative.
-                    zf.extract(file_name, directory)
+                    # Do, not, extract empty directories.
+                    if not file_name.endswith("/"):
+                        zf.extract(file_name, directory)
 
                 print("Uploading directory", directory)
 
-                response = api.add(directory, recursive=True)
+                original_response = api.add(directory, recursive=True)
 
-                print("IPFS Transfer Complete. Removing directory", directory)
-                shutil.rmtree(directory)
+                response = []
+                for item in original_response:
+                    # Remove directory id name
+                    item["Name"] = item["Name"].replace(unique_id, '')
+                    if len(item["Name"]):
+                        item["Name"] = file.filename
+                        
+                    response.append(item)
 
                 try:
-                    # This part stores all the submissions
                     for item in response:
-                        print(item)
-                        print(user.id, item["Hash"], item["Name"])
-                        db.session.add(
-                            Uploads(uploader=user.id, ipfs_hash=item["Hash"], original_name=item["Name"].replace(unique_id)))
+                        # Check that the hash already is not in the database for the user. This occurs with some files that might be shared between users.
+                        if Uploads.query.filter_by(uploader=user.id, ipfs_hash=item["Hash"]).first() is None:
+                            db.session.add(
+                                Uploads(uploader=user.id, ipfs_hash=item["Hash"], original_name=item["Name"]))
 
                     db.session.commit()
-                except IntegrityError:
-                    print("Could not commit, Probably already exists")
-
-                print("Responding to client with new hashes.")
-
-                return response
+                except IntegrityError as e:
+                    print("Could not commit file, Already exists!", e)
         finally:
             zf.close()
+            if directory is not None:
+                shutil.rmtree(directory)
 
     return response

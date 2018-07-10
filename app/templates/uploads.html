@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<title>Uploads</title>
+
+<body>
+    <h1> List of IPFS Uploads by {{ username }}</h1>
+    <table>
+        <tr>
+            <th>IPFS Hash</th>
+            <th>Name</th>
+            <th>Upload Date</th>
+        </tr>
+        {% for upload in uploads %}
+        <tr>
+            <td>
+                <a href="https://gateway.ipfs.io/ipfs/{{ upload.ipfs_hash }}">{{ upload.ipfs_hash }}</a>
+            </td>
+            <td>{{ upload.original_name }}</td>
+            <td>{{ upload.date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+
+</html>

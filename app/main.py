@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 
 app = Flask(__name__)
@@ -18,12 +19,17 @@ app.config['SQLALCHEMY_DATABASE_URI']=os.environ["DATABASE_URI"]
  
 db = SQLAlchemy(app)
 
+env = Environment(
+    loader=PackageLoader(__name__, 'templates'),
+    autoescape=select_autoescape(['html', 'xml'])
+)
+
 from models import Credentials
 from routes import routes
 
 migrate = Migrate(app, db)
 
-routes(app, db)
+routes(app, db, env)
 
 if __name__ == "__main__":
     # Only for debugging while developing

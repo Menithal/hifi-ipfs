@@ -1,7 +1,7 @@
 #!/bin/bash
-docker-compose stop;
-docker-compose rm -f;
-docker-compose pull;
-docker-compose build;
+docker-compose stop upload-point;
+docker-compose rm -f upload-point;
+docker-compose pull upload-point;
+docker-compose build upload-point;
 
-docker-compose up -d --force-recreate;
+docker-compose up -d upload-point;

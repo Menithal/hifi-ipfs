@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from main import db
 from sqlalchemy.sql import func
 from sqlalchemy.schema import UniqueConstraint
