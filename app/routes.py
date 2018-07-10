@@ -46,7 +46,6 @@ def routes(app, db, env):
     @app.route('/upload', methods=['GET', 'POST'])
     def upload_file():
         if request.method == 'POST':
-            print(request.form)
             user = _authentication(
                 request.form['username'], request.form['token'])
 
@@ -65,9 +64,6 @@ def routes(app, db, env):
 
     @app.route('/uploads', methods=['GET', 'POST'])
     def check_uploads():
-        print(request)
-        print("Trying to check uploads", request.data, request.form)
-
         if request.method == "POST":
             user = _authentication(
                 request.form['username'], request.form['token'])
