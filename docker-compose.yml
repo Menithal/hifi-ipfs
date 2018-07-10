@@ -38,9 +38,9 @@ services:
     volumes: 
       - dbdata:/var/lib/postgresql
 
-  upload-point:
-    hostname: upload-point
-    container_name: file_uploader
+  gatekeeper:
+    hostname: gatekeeper
+    container_name: gatekeeper
     build: ./
     mem_limit: 512m # Processes zip files
     depends_on:

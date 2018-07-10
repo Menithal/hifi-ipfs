@@ -1,4 +1,4 @@
-# Hifi-IFPS 
+# Hifi-IFPS "Heimdall"
 ## Web Node Proof of Concept
 
 This is a proof of concept repository for rapidly setting up a service that allows one to upload content to IPFS network that then can be used within High Fidelity. 
@@ -15,7 +15,7 @@ Others may use this as a base line to make their own host nodes for ipfs with th
 - `app` folder contains the source of the Basic Python Flask web service that is used to interface with ipfs
 - `Dockerfile` contains the Docker build file to build the python Flask webservice.
 - `docker-compose.yml` contains the docker compose file to run the entire service stack. This includes:
-   - upload-point - This service, built in this repository.
+   - gatekeeper - Built in this repository. Filters content that goes to the ipfs and gives a barebones ui to track what has been sent to it.
    - ipfs - Interplanetary File System Node https://github.com/ipfs/go-ipfs
    - db - Simple Credentials access control and Keeping track of file hashes, as a PSQL db example
 
@@ -33,9 +33,9 @@ docker-compose up;
 This builds the current state of the service, and starts the entire stack using docker compose.
 
 Once built, you no longer need build the service again.
-Simply running `docker-compose up` will get the service up and running.
+Simply running `docker-compose up` will get the entire service up and running.
 
-If developing and you wish to rebuild the python service, use the  
+If developing and you wish to rebuild the gatekeeper, use the  
 ```
 source rebuild.sh
 ```
@@ -59,7 +59,7 @@ pip install Flask==1.0.2 ipfsapi==0.4.3 flask_sqlalchemy==2.3.2 flask-marshmallo
 Feel free to update versions as they get update, and if you do, submit a pull request.
 
 
-### Service Routes
+### Gatekeeper Routes
 - `/plugin_routes` - Gives an overview of available routes for any plugin to use. This should always be available, as plugins will use this as references
 - `/new` 
     - *GET* - Interface for generating pseudoanonymous tokens that behave as username - token pairs
@@ -73,7 +73,7 @@ Feel free to update versions as they get update, and if you do, submit a pull re
 
 ### Plugins and /plugin_routes 
 
-`/plugin_routes` should return json keys predefined. This allows the service to be developed in other languages as well, if one so wishes, using their own route conventions. The routes is the first thing loaded by a Modelling package plugin (MPP), such as the Blender Plugin.
+`/plugin_routes` This allows the service to be developed in other languages as well, if one so wishes, using their own route conventions. The routes is the first thing loaded by a Modelling package plugin (MPP), such as the Blender Plugin. This should return a json map with the following keys: 
 
 - `new_user` - should point to an interface where the user can generate a new identity. The MMP should simply open the browser for the end user and point it to this url. 
 - `asset_upload` - Should point to a POST interface which allows MMPs to POST a multipart/form-data file, with a username and token

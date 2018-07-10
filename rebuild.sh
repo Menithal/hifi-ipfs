@@ -1,7 +1,7 @@
 #!/bin/bash
-docker-compose stop upload-point;
-docker-compose rm -f upload-point;
-docker-compose pull upload-point;
-docker-compose build upload-point;
+docker-compose stop gatekeeper;
+docker-compose rm -f gatekeeper;
+docker-compose pull gatekeeper;
+docker-compose build gatekeeper;
 
-docker-compose up -d upload-point;
+docker-compose up -d gatekeeper;
