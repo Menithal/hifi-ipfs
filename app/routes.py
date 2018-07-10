@@ -5,9 +5,6 @@ import secrets
 from models import Credentials, pbdkdf2_hash_base64, Uploads
 import file_upload
 
-# Grassroots routes
-
-
 def routes(app, db, env):
     def _authentication(username, token):
         if username is None:
@@ -33,7 +30,7 @@ def routes(app, db, env):
 
     @app.route('/')
     def landing():
-        return 'Prototype IPFS with Web UI. Connect via Plugin.'
+        return 'Heimdall v0.01. Connect via Plugin.'
 
     @app.route('/plugin_routes', methods=['GET'])
     def routes():

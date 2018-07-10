@@ -2,6 +2,8 @@
 # https://github.com/tiangolo/uwsgi-nginx-flask-docker
 FROM tiangolo/uwsgi-nginx-flask:python3.6
 
+# TODO: Investigate a way how to config the nginx for TSL certs.
+
 LABEL author="Matti Lahtinen <menithal@norteclabs.com>"
 
 # Installing ipfsapi (ipfs helper library), psycopg (psql adapter), and sqlalchemy (SQL Python ORM)
