@@ -60,7 +60,6 @@ Shortcut to build the python service.
 - `docker-compose up -d` - puts all the services online, detachhed
 - `docker-compose down` - shut down all the services
 
-
 # Dev Requirements
 
 To continue developing the project on your own or in your own fork, make sure to install the pip packages
@@ -91,6 +90,15 @@ Feel free to update versions as they get update, and if you do, submit a pull re
 - `new_user` - should point to an interface where the user can generate a new identity. The MMP should simply open the browser for the end user and point it to this url. 
 - `asset_upload` - Should point to a POST interface which allows MMPs to POST a multipart/form-data file, with a username and token
 - `uploads` - Should point to an interface where the user can check all the links generated under their account that point to the ipfs and manage it there.
+
+
+### Enable HTTPS / TSL with the Docker Container
+
+If you want to make a public gateway, you are doing it at your own risk, but it would always be good to have some transport security.
+
+You can use certbot + lets encrypt to create a certificate for your dns domain. Once it is generated on the same server, it can be found under `/etc/letsencrypt/live/<domain>`.
+
+Then you can modify the volume to be referred to in the `docker-compose.yml` file, and modify the `nginx/conf.d/nginx.conf` file to suit your needs.
 
 # License 
 

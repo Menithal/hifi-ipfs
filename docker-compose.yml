@@ -48,9 +48,9 @@ services:
       - db
     ports: 
       - "80:80"
-      #- "443:443"
-    #volumes:
-    #  - /etc/letsencrypt/:/etc/letsencrypt/:ro
+    #  - "443:443" # Remove the Comments if you want to use HTTPS connections
+    #volumes:  
+    #  - /etc/letsencrypt/:/etc/letsencrypt/:ro 
     environment:
       - FLASK_APP=/app/main.py
       - SECRET_KEY=${SECRET_KEY}
