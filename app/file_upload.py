@@ -98,18 +98,17 @@ def process(app, db, request, user):
                                 is_avatar = True
                             
                             item["Name"] = file.filename.replace(
-                                '.zip', '/' + item['Name'])
+                                '.zip', item['Name'])
 
 
                     response.append(item)
 
                 try:
                     for item in response:
-                        print(item)
                         # Check that the hash already is not in the database for the user. This occurs with some files that might be shared between users.
                         if Uploads.query.filter_by(uploader=user.id, ipfs_hash=item["Hash"]).first() is None:
                             db.session.add(
-                                Uploads(uploader=user.id, ipfs_hash=item["Hash"], original_name=item["Name"]), parent_hash=root_hash, is_avatar=is_avatar)
+                                Uploads(uploader=user.id, ipfs_hash=item["Hash"], original_name=item["Name"], parent_hash=root_hash, is_avatar=is_avatar))
 
                     db.session.commit()
                 except IntegrityError as e:
