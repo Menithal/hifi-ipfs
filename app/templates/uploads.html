@@ -18,13 +18,13 @@
         {% for upload in uploads %}
         <tr>
             <td>
-                <a href="https://gateway.ipfs.io/ipfs/{{ upload.ipfs_hash }}">{{ upload.ipfs_hash }}</a>
+                <a href="https://gateway.ipfs.io/ipfs/{{ upload.ipfs_hash }}">{{ upload.ipfs_hash[:4] }}....{{ upload.ipfs_hash[-4:] }}</a>
             </td>
             <td>{{ upload.original_name }}</td>
             <td>{{ upload.date }}</td>
             <td>
                 {% if upload.parent_hash == upload.ipfs_hash and upload.is_avatar %}
-                <a href="#">https://gateway.ipfs.io/ipfs/{{upload.parent_hash}}/{{upload.original_name}}.fst</a>
+                <a href="https://gateway.ipfs.io/ipfs/{{upload.parent_hash}}/{{upload.original_name}}.fst">Right Click, Copy Link Paste as Avatar</a>
                 {% endif %}
             </td>
         </tr>
