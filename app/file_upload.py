@@ -64,10 +64,10 @@ def process(app, db, request, user):
             err = []
 
             for file_name in file_names:
-                valid = allowed_file(file_name, ALLOWED_CONTENT_EXTENSIONS)
+                valid = valid and allowed_file(file_name, ALLOWED_CONTENT_EXTENSIONS)
 
                 if not valid:
-                    err.insert(file_name)
+                    err.append(file_name)
 
             if not valid:
                 response = {
