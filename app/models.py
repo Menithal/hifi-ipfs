@@ -46,4 +46,6 @@ class Uploads(db.Model):
     uploader = db.Column(db.Integer, db.ForeignKey('credentials.id'))
     ipfs_hash = db.Column(db.Text())
     original_name = db.Column(db.Text())
+    parent_hash = db.Column(db.Text())
+    is_avatar = db.Column(db.Boolean(), default=False)
     date = db.Column(db.DateTime, server_default=func.now())

@@ -1,6 +1,10 @@
 <!doctype html>
 <html>
-<title>Uploads</title>
+
+<head>
+    <title>Uploads</title>
+
+</head>
 
 <body>
     <h1> List of IPFS Uploads by {{ username }}</h1>
@@ -9,6 +13,7 @@
             <th>IPFS Hash</th>
             <th>Name</th>
             <th>Upload Date</th>
+            <th>Copy Avatar Link</th>
         </tr>
         {% for upload in uploads %}
         <tr>
@@ -17,6 +22,11 @@
             </td>
             <td>{{ upload.original_name }}</td>
             <td>{{ upload.date }}</td>
+            <td>
+                {% if upload.parent_hash == upload.ipfs_hash and upload.is_avatar %}
+                <a href="#">https://gateway.ipfs.io/ipfs/{{upload.parent_hash}}/{{upload.original_name}}.fst</a>
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </table>

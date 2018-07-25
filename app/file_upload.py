@@ -9,7 +9,7 @@ import zipfile
 import uuid
 import ipfsapi
 import shutil
-
+import re
 from ipfsapi.exceptions import ConnectionError
 from models import Uploads
 
@@ -82,12 +82,24 @@ def process(app, db, request, user):
                 original_response = api.add(directory, recursive=True)
 
                 response = []
+
+                root_hash = None
+                is_avatar = False
+
                 for item in original_response:
                     # Remove directory id name
                     if "Name" in item.keys():
                         item["Name"] = item["Name"].replace(unique_id, '')
                         if len(item["Name"]) is 0:
-                            item["Name"] = file.filename
+                            root_hash = item["Hash"]
+                            item["Name"] = file.filename.replace('.zip', '')
+                        else:
+                            if re.match(r".*\.fst$", item["Name"]) is not None:
+                                is_avatar = True
+                            
+                            item["Name"] = file.filename.replace(
+                                '.zip', '/' + item['Name'])
+
 
                     response.append(item)
 
@@ -97,7 +109,7 @@ def process(app, db, request, user):
                         # Check that the hash already is not in the database for the user. This occurs with some files that might be shared between users.
                         if Uploads.query.filter_by(uploader=user.id, ipfs_hash=item["Hash"]).first() is None:
                             db.session.add(
-                                Uploads(uploader=user.id, ipfs_hash=item["Hash"], original_name=item["Name"]))
+                                Uploads(uploader=user.id, ipfs_hash=item["Hash"], original_name=item["Name"]), parent_hash=root_hash, is_avatar=is_avatar)
 
                     db.session.commit()
                 except IntegrityError as e:
