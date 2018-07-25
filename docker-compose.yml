@@ -48,10 +48,12 @@ services:
       - db
     ports: 
       - "80:80"
+      #- "443:443"
+    #volumes:
+    #  - /etc/letsencrypt/:/etc/letsencrypt/:ro
     environment:
       - FLASK_APP=/app/main.py
       - SECRET_KEY=${SECRET_KEY}
-      - MAX_CONTENT_LENGTH=50000000
       - UPLOAD_FOLDER=/tmp/uploads/ #Folder where files are temporary uploaded to be unpacked.
       - DATABASE_URI=postgresql://postgres:postgres@db:5432/hifi
  

@@ -18,7 +18,10 @@ ALLOWED_UPLOAD_EXTENSIONS = set(['zip', 'fbx', 'js', 'json'])
 # What is allowed to be inside a zip file.
 ALLOWED_CONTENT_EXTENSIONS = set(
     ['fbx', 'jpg', 'png', 'tga', 'fst', 'js', 'json'])
-# Check
+#
+# TODO: Better File reading and actually checking what the file contains (js, fst, and json are plain text and, json
+#  could be run through a parser, while js could be run through js lint. FST is a hifi specific format too.)
+
 
 def allowed_file(filename, extensions):
     return '.' in filename and \
@@ -42,6 +45,8 @@ def process(app, db, request, user):
 
     if not allowed_file(file.filename, ALLOWED_UPLOAD_EXTENSIONS):
         return {'error': 'File type not allowed!'}
+
+    # TODO: better processing of files here.
 
     # This may actually need to be unpacked to save memory, but for now, for example purposes, its simple.
     response = None
@@ -70,7 +75,7 @@ def process(app, db, request, user):
             else:
 
                 for file_name in file_names:
-                    # Do, not, extract empty directories.
+                    # Do not extract empty directories.
                     if not file_name.endswith("/"):
                         zf.extract(file_name, directory)
 
