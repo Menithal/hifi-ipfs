@@ -10,13 +10,17 @@ app = Flask(__name__)
 
 
 # Configs
-app.config["SECRET_KEY"]=os.environ["SECRET_KEY"]
-app.config["UPLOAD_FOLDER"]=os.environ["UPLOAD_FOLDER"]
-## TODO:  should probably throw errors if these are not set, just incase.
+app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
+app.config["UPLOAD_FOLDER"] = os.environ["UPLOAD_FOLDER"]
+# TODO: Probably better to set on docker config, but for now leaving it to here
+app.config['MAX_CONTENT_LENGTH'] = int(os.environ["MAX_CONTENT_LENGTH"])
+
+
+# TODO:  should probably throw errors if these are not set, just incase.
 
 # URI:
-app.config['SQLALCHEMY_DATABASE_URI']=os.environ["DATABASE_URI"]
- 
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URI"]
+
 db = SQLAlchemy(app)
 
 env = Environment(
@@ -34,4 +38,3 @@ routes(app, db, env)
 if __name__ == "__main__":
     # Only for debugging while developing
     app.run(host='0.0.0.0', debug=True, port=80)
-

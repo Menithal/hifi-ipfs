@@ -9,6 +9,7 @@ Others may use this as a template to improve upon to make their own host nodes f
 
 - IPFS is still in early development. See ipfs.io for more details
 - IPFS Can be quite a bandwidth and cpu hog. Suggest using it in a Droplet instead of EC2.
+- Use at your own risk if you have opened ports to the service.
 
 # Requirements
 

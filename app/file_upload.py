@@ -18,7 +18,7 @@ ALLOWED_UPLOAD_EXTENSIONS = set(['zip', 'fbx', 'js', 'json'])
 # What is allowed to be inside a zip file.
 ALLOWED_CONTENT_EXTENSIONS = set(
     ['fbx', 'jpg', 'png', 'tga', 'fst', 'js', 'json'])
-
+# Check
 
 def allowed_file(filename, extensions):
     return '.' in filename and \
@@ -88,6 +88,7 @@ def process(app, db, request, user):
 
                 try:
                     for item in response:
+                        print(item)
                         # Check that the hash already is not in the database for the user. This occurs with some files that might be shared between users.
                         if Uploads.query.filter_by(uploader=user.id, ipfs_hash=item["Hash"]).first() is None:
                             db.session.add(
