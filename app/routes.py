@@ -119,7 +119,9 @@ def routes(app, db, env):
             db.session.commit()
 
             return jsonify({'username': request.form['username'], 'secret': secret, 'notes': 'DO NOT LOSE THIS'})
+
         elif request.method == 'POST' and app.config["OAUTH_ENABLED"]:
+            # Now if the application has OAUTH_ENABLED, then we will actually check if the token returns the correct result back from the server.
 
             val = Credentials.query.filter_by(
                 username=request.form['username']).first()
@@ -136,15 +138,16 @@ def routes(app, db, env):
 
             if "error" in result.keys():
                 db.session.close()
-                return jsonify({"error": "Oauth token was not valid."})
+                return jsonify({"error": "Oauth token was not valid: Service response:" + result.error})
 
             try:
                 if request.form["username"].lower() != result.data.user.username.lower():
                     db.session.close()
-                    return jsonify({"error": "Username did not match to provided"})
+                    return jsonify({"error": "Invalid Username token comparison."})
+
             except Exception as e:
                 db.session.close()
-                return jsonify({"error": "Return was not a username"})
+                return jsonify({"error": "Invalid Username token comparison."})
 
             secret = secrets.token_urlsafe()
             salt = secrets.token_urlsafe()
@@ -158,6 +161,6 @@ def routes(app, db, env):
 
             db.session.commit()
 
-            return jsonify({'username': request.form['username'], 'secret': secret, 'notes': 'DO NOT LOSE THIS'})
+            return jsonify({'username': request.form['username'], 'secret': secret, 'notes': 'You may recreate the token with a valid oauth key later.'})
 
         return ""
