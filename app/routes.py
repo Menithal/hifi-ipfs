@@ -40,14 +40,14 @@ def routes(app, db, env):
         # This is used by external plugins to check for existing links.
         # Both should be GET and POST compatible, with POST being the submission, while GET is the public
         available_config = {
-            "oauth": app.config["OAUTH_ENABLED"],
+            "oauth": app.config["OAUTH_ENABLED"] == '1',
             "new_user": "/new",
             "asset_upload": "/upload",
             "uploads": "/uploads"
         }
 
-        if app.config["OAUTH_ENABLED"]:
-            available_config["generation_link"] = app.config["OAUTH_TOKEN_LINK"]
+        if app.config["OAUTH_ENABLED"] == '1':
+            available_config["oauth_link"] = app.config["OAUTH_TOKEN_LINK"] == '1'
 
         return jsonify(available_config)
 
@@ -144,10 +144,9 @@ def routes(app, db, env):
                 if request.form["username"].lower() != result.data.user.username.lower():
                     db.session.close()
                     return jsonify({"error": "Invalid Username token comparison."})
-
             except Exception as e:
                 db.session.close()
-                return jsonify({"error": "Invalid Username token comparison."})
+                return jsonify({"error": "Invalid Username token comparison:" + e})
 
             secret = secrets.token_urlsafe()
             salt = secrets.token_urlsafe()

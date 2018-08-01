@@ -9,7 +9,6 @@ def _http_connect(server):
     else:
         return http.client.HTTPConnection(server.replace("http://", ""))
 
-
 def oauth_connect(url, oauth, method="GET"):
     
     url = urlparse(url)
@@ -21,7 +20,6 @@ def oauth_connect(url, oauth, method="GET"):
         connection.request(method, url.path, {}, {"Authorization": "Bearer " + oauth})
         res = connection.getresponse()
         data = res.read()
-
     except HTTPException as e:
         print("HttpException Occurred", e)
         # TODO: Should probably throw Exception here.
