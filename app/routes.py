@@ -5,6 +5,8 @@ import secrets
 from models import Credentials, pbdkdf2_hash_base64, Uploads
 import file_upload
 
+from http_client import oauth_connect
+
 
 def routes(app, db, env):
     def _authentication(username, token):
@@ -31,22 +33,28 @@ def routes(app, db, env):
 
     @app.route('/')
     def landing():
-        return 'Heimdall v0.2. Connect via Plugin.'
+        return 'Heimdall v0.5. Connect via Plugin.'
 
     @app.route('/plugin_routes', methods=['GET'])
     def routes():
         # This is used by external plugins to check for existing links.
         # Both should be GET and POST compatible, with POST being the submission, while GET is the public
-        return jsonify({
+        available_config = {
+            "oauth": app.config["OAUTH_ENABLED"],
             "new_user": "/new",
             "asset_upload": "/upload",
             "uploads": "/uploads"
-        })
+        }
+
+        if app.config["OAUTH_ENABLED"]:
+            available_config["generation_link"] = app.config["OAUTH_TOKEN_LINK"]
+
+        return jsonify(available_config)
 
     @app.route('/upload', methods=['GET', 'POST'])
     def upload_file():
         if request.method == 'POST':
-            
+
             user = _authentication(
                 request.form['username'], request.form['token'])
 
@@ -59,7 +67,7 @@ def routes(app, db, env):
             except Exception as e:
                 return jsonify({'error': e})
 
-        return env.get_template('uploader.html').render()
+        return ""
 
     # TODO: File removal could be done after request instead of inside file_upload.process
 
@@ -77,8 +85,8 @@ def routes(app, db, env):
             )
             return env.get_template('uploads.html').render(uploads=uploads, username=user.username)
         elif request.args is not None and request.args.get('username') is not None and request.args.get('token') is not None:
-            user = _authentication(
-                request.args.get('username'),request.args.get('token'))
+            user = _authentication(request.args.get(
+                'username'), request.args.get('token'))
 
             if user is None:
                 return jsonify({'error': 'Could not authenticate with provided information.'})
@@ -93,14 +101,13 @@ def routes(app, db, env):
     # TODO: Update when creating proper authentication channels.
     @app.route('/new', methods=['GET', 'POST'])
     def create_credentials():
-        if request.method == 'POST':
-            if len(request.form['username']) == 0:
-                return redirect(url_for('create_credentials'))
+        if request.method == 'POST' and not app.config["OAUTH_ENABLED"]:
 
             val = Credentials.query.filter_by(
                 username=request.form['username']).first()
 
             if val is not None:
+                db.session.close()
                 return jsonify({'username': request.form['username'], 'error': 'Token already generated.'})
 
             secret = secrets.token_urlsafe()
@@ -112,5 +119,45 @@ def routes(app, db, env):
             db.session.commit()
 
             return jsonify({'username': request.form['username'], 'secret': secret, 'notes': 'DO NOT LOSE THIS'})
+        elif request.method == 'POST' and app.config["OAUTH_ENABLED"]:
 
-        return env.get_template('new_user.html').render()
+            val = Credentials.query.filter_by(
+                username=request.form['username']).first()
+
+            result = oauth_connect(
+                app.config["OAUTH_LOGIN_API"], request.form['oauth'])
+
+            _authentication(
+                request.form['username'].lower(), request.form['token'])
+
+            if len(request.form['oauth']) == 0:
+                db.session.close()
+                return jsonify({'error': 'Oauth token is required by the server.'})
+
+            if "error" in result.keys():
+                db.session.close()
+                return jsonify({"error": "Oauth token was not valid."})
+
+            try:
+                if request.form["username"].lower() != result.data.user.username.lower():
+                    db.session.close()
+                    return jsonify({"error": "Username did not match to provided"})
+            except Exception as e:
+                db.session.close()
+                return jsonify({"error": "Return was not a username"})
+
+            secret = secrets.token_urlsafe()
+            salt = secrets.token_urlsafe()
+
+            if val is not None:
+                user = Credentials(request.form['username'].lower(), secret, salt)
+                db.session.add(user)
+            else:
+                val.secret = secret
+                val.salt = salt
+
+            db.session.commit()
+
+            return jsonify({'username': request.form['username'], 'secret': secret, 'notes': 'DO NOT LOSE THIS'})
+
+        return ""

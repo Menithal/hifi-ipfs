@@ -12,10 +12,12 @@ app = Flask(__name__)
 # Configs
 app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
 app.config["UPLOAD_FOLDER"] = os.environ["UPLOAD_FOLDER"]
-# TODO: Probably better to set on docker config, but for now leaving it to here
 
+app.config["OAUTH_ENABLED"] = os.environ["OAUTH_ENABLED"]
 
-# TODO:  should probably throw errors if these are not set, just incase.
+if app.config["OAUTH_ENABLED"]:
+    app.config["OAUTH_TOKEN_LINK"] = os.environ["OAUTH_TOKEN_LINK"]
+    app.config["OAUTH_LOGIN_API"] = os.environ["OAUTH_LOGIN_API"]
 
 # URI:
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URI"]

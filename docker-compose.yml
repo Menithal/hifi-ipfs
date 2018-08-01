@@ -56,6 +56,9 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - UPLOAD_FOLDER=/tmp/uploads/ #Folder where files are temporary uploaded to be unpacked.
       - DATABASE_URI=postgresql://postgres:postgres@db:5432/hifi
+      - OAUTH_ENABLED=1
+      - OAUTH_TOKEN_LINK=https://metaverse.highfidelity.com/user/tokens/new?for_identity=true
+      - OAUTH_LOGIN_API=https://metaverse.highfidelity.com/api/v1/user/profile
  
 volumes:
   ipfs_staging:
