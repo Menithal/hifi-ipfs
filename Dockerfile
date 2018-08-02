@@ -10,7 +10,7 @@ WORKDIR /app
 ENV PYTHONPATH=/app
 
 # This next part is based on the flask-docker docker file, but modded to just refer to local nginx configs.
-RUN pip install flask ipfsapi==0.4.3 flask_sqlalchemy==2.3.2 flask-marshmallow==0.9.0 Flask-Migrate==2.2.1 psycopg2-binary==2.7.5 python-dotenv==0.8.2
+RUN pip install flask ipfsapi==0.4.3 flask_sqlalchemy==2.3.2 flask-marshmallow==0.9.0 Flask-Migrate==2.2.1 psycopg2-binary==2.7.5 python-dotenv==0.8.2 
 
 ENTRYPOINT ["/entrypoint.sh"]
 # By default, allow unlimited file sizes, modify it to limit the file sizes

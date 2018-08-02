@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import request, jsonify, redirect, url_for
+from flask import request, jsonify, redirect, url_for, session
 import secrets
 
 from models import Credentials, pbdkdf2_hash_base64, Uploads
@@ -75,8 +75,14 @@ def routes(app, db, env):
     @app.route('/uploads', methods=['GET', 'POST'])
     def check_uploads():
         if request.method == "POST":
-            user = _authentication(
-                request.form['username'], request.form['token'])
+
+            if request.form['username'] is not None:
+                session['username'] = request.form['username']
+
+            if request.form['token'] is not None:
+                session['token'] = request.form['token']
+
+            user = _authentication(session['username'], session['token'])
 
             if user is None:
                 return jsonify({'error': 'Could not authenticate with provided information.'})
@@ -84,10 +90,22 @@ def routes(app, db, env):
             uploads = Uploads.query.filter_by(
                 uploader=user.id
             )
-            return env.get_template('uploads.html').render(uploads=uploads, username=user.username)
-        elif request.args is not None and request.args.get('username') is not None and request.args.get('token') is not None:
-            user = _authentication(request.args.get(
-                'username'), request.args.get('token'))
+
+            if request.form['page'] != None:
+                page = int(request.form['page'])
+            else:
+                page = 1
+
+            return env.get_template('uploads.html').render(uploads=uploads, username=user.username, page=page)
+        elif (request.args is not None and request.args.get('username') is not None and request.args.get('token') is not None) or (session is not None and "username" in session and 'token' in session):
+
+            if request.args.get('username') is not None:
+                session['username'] = request.args.get('username')
+
+            if request.args.get('token') is not None:
+                session['token'] = request.args.get('token')
+
+            user = _authentication(session['username'], session['token'])
 
             if user is None:
                 return jsonify({'error': 'Could not authenticate with provided information.'})
@@ -95,9 +113,18 @@ def routes(app, db, env):
             uploads = Uploads.query.filter_by(
                 uploader=user.id
             )
-            return env.get_template('uploads.html').render(uploads=uploads, username=user.username)
 
-        return env.get_template('query.html').render()
+            if request.args.get('page') != None:
+                page = int(request.args.get('page'))
+            else:
+                page = 1
+
+            max_count = 25
+            page_count = round(uploads.count() / max_count)
+
+            return env.get_template('uploads.html').render(uploads=uploads, username=user.username, page=page, page_count=page_count, max_count=max_count)
+
+        return ""
 
     # TODO: Update when creating proper authentication channels.
     @app.route('/new', methods=['POST'])
@@ -127,7 +154,8 @@ def routes(app, db, env):
             user = Credentials.query.filter_by(
                 username=request.form['username']).first()
 
-            result = json.loads(oauth_connect(OAUTH_API, request.form['oauth']))
+            result = json.loads(oauth_connect(
+                OAUTH_API, request.form['oauth']))
 
             if len(request.form['oauth']) == 0:
                 db.session.close()

@@ -1,31 +1,118 @@
 <!doctype html>
 <html>
+
 <head>
     <title>Uploads</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #343434;
+        }
+
+        body {
+            background-color: #F5F5F5;
+        }
+
+        .header {
+            padding: 20px;
+            padding-top: 20px;
+            padding-bottom: 50px;
+
+            width: 100%;
+            border-bottom: 1px #DDDDDD solid;
+        }
+
+
+        .table {
+            display: table;
+            margin: 2rem;
+        }
+
+        .tr {
+            display: table-row;
+        }
+
+        .td {
+            display: table-cell;
+            text-align: center;
+            height: 30px;
+        }
+
+        .hash,
+        .hash a,
+        .hash a:visited,
+        .hash a:-webkit-any-link {
+            color: #999;
+            width: 100px;
+        }
+
+        .td.name {
+            width: 300px;
+        }
+
+        .td.date {
+            width: 200px;
+        }
+
+        .head .td {
+            font-weight: bold;
+        }
+
+        .td.upload {
+            padding-left: 10px;
+            padding-right: 10px;
+            width: 100px;
+        }
+
+        .td.hash a {
+            text-decoration: none;
+        }
+
+        .td.upload a {
+            color: white;
+            background-color: #00b4f0;
+            padding: 5px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+    </style>
 </head>
+
 <body>
-    <h1> List of IPFS Uploads by {{ username }}</h1>
-    <table>
-        <tr>
-            <th>IPFS Hash</th>
-            <th>Name</th>
-            <th>Upload Date</th>
-            <th>Copy Avatar Link</th>
-        </tr>
-        {% for upload in uploads %}
-        <tr>
-            <td>
-                <a href="https://gateway.ipfs.io/ipfs/{{ upload.ipfs_hash }}">  {{ upload.ipfs_hash[:4] }}....{{ upload.ipfs_hash[-4:] }}  </a>
-            </td>
-            <td>{{ upload.original_name }}</td>
-            <td>{{ upload.date }}</td>
-            <td>
+    <div class="header">
+        <h2> List of Uploads for {{ username }}</h2>
+    </div>
+    <div class="table">
+        <div class="tr head">
+            <div class="td name">Name</div>
+            <div class="td">IPFS Hash</div>
+            <div class="td date">Upload Date</div>
+            <div class="td button"> </div>
+        </div>
+        {% for upload in uploads[1*page-1:max_count*page] %}
+        <div class="tr">
+            <div class="td name">{{ upload.original_name }}</div>
+            <div class="td hash">
+                <a href="https://gateway.ipfs.io/ipfs/{{ upload.ipfs_hash }}"> {{ upload.ipfs_hash[:4] }}....{{ upload.ipfs_hash[-4:] }} </a>
+            </div>
+            <div class="td date">{{ upload.date }}</div>
+            <div class="td upload">
                 {% if upload.parent_hash == upload.ipfs_hash and upload.is_avatar %}
-                <a href="https://gateway.ipfs.io/ipfs/{{upload.parent_hash}}/{{upload.original_name}}.fst">Right Click</a>
+                <a href="https://gateway.ipfs.io/ipfs/{{upload.parent_hash}}/{{upload.original_name}}.fst">Avatar Link</a>
                 {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+            </div>
+        </div>
+        {% endfor %} 
+        {% if uploads.count() > max_count %}
+        <div>
+            {% for index in range(page_count) %}
+            <a href="?page={{index}}">{{index}}</a>, 
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
 </body>
+
 </html>
