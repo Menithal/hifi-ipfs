@@ -4,11 +4,15 @@ import secrets
 
 from models import Credentials, pbdkdf2_hash_base64, Uploads
 import file_upload
+import json
 
 from http_client import oauth_connect
 
 
 def routes(app, db, env):
+
+    OAUTH_API = app.config["OAUTH_LOGIN_API"]
+
     def _authentication(username, token):
         if username is None:
             return None
@@ -51,23 +55,20 @@ def routes(app, db, env):
 
         return jsonify(available_config)
 
-    @app.route('/upload', methods=['GET', 'POST'])
+    @app.route('/upload', methods=['POST'])
     def upload_file():
-        if request.method == 'POST':
 
-            user = _authentication(
-                request.form['username'], request.form['token'])
+        user = _authentication(
+            request.form['username'], request.form['token'])
 
-            if user is None:
-                return jsonify({'error': 'Could not authenticate with provided information.'})
+        if user is None:
+            return jsonify({'error': 'Could not authenticate with provided information.'})
 
-            try:
-                return jsonify(file_upload.process(app, db, request, user))
+        try:
+            return jsonify(file_upload.process(app, db, request, user))
 
-            except Exception as e:
-                return jsonify({'error': e})
-
-        return ""
+        except Exception as e:
+            return jsonify({'error': e})
 
     # TODO: File removal could be done after request instead of inside file_upload.process
 
@@ -99,10 +100,11 @@ def routes(app, db, env):
         return env.get_template('query.html').render()
 
     # TODO: Update when creating proper authentication channels.
-    @app.route('/new', methods=['GET', 'POST'])
+    @app.route('/new', methods=['POST'])
     def create_credentials():
-        if request.method == 'POST' and not app.config["OAUTH_ENABLED"]:
 
+        if not app.config["OAUTH_ENABLED"]:
+            print("Request through non OAUTH")
             val = Credentials.query.filter_by(
                 username=request.form['username']).first()
 
@@ -119,18 +121,13 @@ def routes(app, db, env):
             db.session.commit()
 
             return jsonify({'username': request.form['username'], 'secret': secret, 'notes': 'DO NOT LOSE THIS'})
-
-        elif request.method == 'POST' and app.config["OAUTH_ENABLED"]:
+        else:
             # Now if the application has OAUTH_ENABLED, then we will actually check if the token returns the correct result back from the server.
 
-            val = Credentials.query.filter_by(
+            user = Credentials.query.filter_by(
                 username=request.form['username']).first()
 
-            result = oauth_connect(
-                app.config["OAUTH_LOGIN_API"], request.form['oauth'])
-
-            _authentication(
-                request.form['username'].lower(), request.form['token'])
+            result = json.loads(oauth_connect(OAUTH_API, request.form['oauth']))
 
             if len(request.form['oauth']) == 0:
                 db.session.close()
@@ -141,22 +138,23 @@ def routes(app, db, env):
                 return jsonify({"error": "Oauth token was not valid: Service response:" + result.error})
 
             try:
-                if request.form["username"].lower() != result.data.user.username.lower():
+                if request.form["username"].lower() != result['data']['user']['username'].lower():
                     db.session.close()
                     return jsonify({"error": "Invalid Username token comparison."})
             except Exception as e:
                 db.session.close()
-                return jsonify({"error": "Invalid Username token comparison:" + e})
+                return jsonify({"error": "Invalid Username token comparison. Oauth server response was:" + str(e)})
 
             secret = secrets.token_urlsafe()
             salt = secrets.token_urlsafe()
 
-            if val is not None:
-                user = Credentials(request.form['username'].lower(), secret, salt)
-                db.session.add(user)
+            if user is None:
+                new_user = Credentials(
+                    request.form['username'].lower(), secret, salt)
+                db.session.add(new_user)
             else:
-                val.secret = secret
-                val.salt = salt
+                user.token_hash = pbdkdf2_hash_base64(secret, salt)
+                user.salt = salt
 
             db.session.commit()
 

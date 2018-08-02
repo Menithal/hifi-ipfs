@@ -10,15 +10,15 @@ def _http_connect(server):
         return http.client.HTTPConnection(server.replace("http://", ""))
 
 def oauth_connect(url, oauth, method="GET"):
-    
     url = urlparse(url)
-    connection = _http_connect(url.netloc)
+    connection = _http_connect(url.scheme + "://" + url.netloc)
     data = None
 
     try:
         connection.connect()
         connection.request(method, url.path, {}, {"Authorization": "Bearer " + oauth})
         res = connection.getresponse()
+        
         data = res.read()
     except HTTPException as e:
         print("HttpException Occurred", e)
