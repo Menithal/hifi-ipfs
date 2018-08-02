@@ -80,6 +80,15 @@
             border-radius: 5px;
             text-decoration: none;
         }
+
+        .page_total {
+            padding-top: 8px;
+            font-weight: bold;
+        }
+
+        .stats {
+            padding: 0.4rem 2rem;
+        }
     </style>
 </head>
 
@@ -87,6 +96,19 @@
     <div class="header">
         <h2> List of Uploads for {{ username }}</h2>
     </div>
+
+    <div class="stats">
+
+
+        <div class="page">
+            <span class="page_total">
+                {{uploads.count()}} Uploads
+            </span>
+            {% if uploads.count() > max_count %} Page: {% for index in (range(page_count+ 1) ) %}
+            <a href="?page={{index+1}}">{{index+1}}</a>,{% endfor %} {% endif %}
+        </div>
+    </div>
+
     <div class="table">
         <div class="tr head">
             <div class="td name">Name</div>
@@ -94,7 +116,8 @@
             <div class="td date">Upload Date</div>
             <div class="td button"> </div>
         </div>
-        {% for upload in uploads[1*page-1:max_count*page] %}
+
+        {% for upload in uploads[max_count*(page-1):max_count*page] %}
         <div class="tr">
             <div class="td name">{{ upload.original_name }}</div>
             <div class="td hash">
@@ -107,14 +130,8 @@
                 {% endif %}
             </div>
         </div>
-        {% endfor %} 
-        {% if uploads.count() > max_count %}
-        <div>
-            {% for index in range(page_count) %}
-            <a href="?page={{index}}">{{index}}</a>, 
-            {% endfor %}
-        </div>
-        {% endif %}
+
+        {% endfor %}
     </div>
 </body>
 

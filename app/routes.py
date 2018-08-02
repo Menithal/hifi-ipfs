@@ -119,7 +119,7 @@ def routes(app, db, env):
             else:
                 page = 1
 
-            max_count = 25
+            max_count = 10
             page_count = round(uploads.count() / max_count)
 
             return env.get_template('uploads.html').render(uploads=uploads, username=user.username, page=page, page_count=page_count, max_count=max_count)
