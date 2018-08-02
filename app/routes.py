@@ -135,7 +135,7 @@ def routes(app, db, env):
 
             if "error" in result.keys():
                 db.session.close()
-                return jsonify({"error": "Oauth token was not valid: Service response:" + result.error})
+                return jsonify({"error": "Oauth token was not valid: Service response:" + result['error']})
 
             try:
                 if request.form["username"].lower() != result['data']['user']['username'].lower():
