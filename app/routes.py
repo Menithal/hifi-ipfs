@@ -51,7 +51,7 @@ def routes(app, db, env):
         }
 
         if app.config["OAUTH_ENABLED"] == '1':
-            available_config["oauth_link"] = app.config["OAUTH_TOKEN_LINK"] == '1'
+            available_config["oauth_api"] = app.config["OAUTH_TOKEN_LINK"]
 
         return jsonify(available_config)
 
