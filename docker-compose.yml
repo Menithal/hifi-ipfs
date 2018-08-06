@@ -8,6 +8,7 @@ services:
     container_name: ipfs
     image: ipfs/go-ipfs:v0.4.15
     mem_limit: 512m # more stuff goes through the node
+    restart: on-failure:5
     volumes:
       - "ipfs_data:/data/ipfs"
       - "ipfs_staging:/export"
